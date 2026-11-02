@@ -20,6 +20,7 @@
   "homepage": "https://github.com/hkn2-9/CS-312-MiniProject-1#readme",
   "dependencies": {
     "body-parser": "^2.3.0",
+    "cors": "^2.8.6",
     "ejs": "^6.0.1",
     "express": "^5.2.1",
     "express-session": "^1.19.0",

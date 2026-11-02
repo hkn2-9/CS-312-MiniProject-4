@@ -115,3 +115,16 @@ img, form, input, textarea {
   a.button {
     margin-left: 8px;
   }
+
+  .user-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 12px 0;
+}
+
+button.small {
+  padding: 3px 10px;
+  font-size: 12px;
+  width: auto;
+}
