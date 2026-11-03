@@ -1,78 +1,88 @@
 import { useState, useEffect } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 function EditPost({ user, setUser }) {
-    const { id } = useParams();
-    const navigate = useNavigate();
-    const [title, setTitle] = useState("");
-    const [content, setContent] = useState("");
-    const [error, setError] = useState("");
-    const [loading, setLoading] = useState(true);
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        async function loadPost() {
-            try {
-                const res = await fetch(`http://localhost:8000/api/posts/${id}`, {
-                    credentials: "include"
-                });
-                const data = await res.json();
-                if (res.ok) {
-                    setTitle(data.title);
-                    setContent(data.body);
-                } else {
-                    setError(data.error);
-                }
-            } catch (err) {
-                console.error(err);
-                setError("Failed to load post");
-            }
-            setLoading(false);
+  useEffect(() => {
+    async function loadPost() {
+      try {
+        const res = await axios.get(`http://localhost:8000/api/posts/${id}`, {
+          withCredentials: true,
+        });
+        const data = res.data;
+        if (res.status === 200) {
+          setTitle(data.title);
+          setContent(data.body);
+        } else {
+          setError(data.error);
         }
-        loadPost();
-    }, [id]);
-
-    async function handleSubmit(e) {
-        e.preventDefault();
-        try {
-            const res = await fetch(`http://localhost:8000/api/posts/${id}`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                credentials: "include",
-                body: JSON.stringify({ title, content })
-            });
-            const data = await res.json();
-            if (res.ok) {
-                navigate("/");
-            } else {
-                setError(data.error);
-            }
-        } catch (err) {
-            console.error(err);
-            setError("Failed to update post");
-        }
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load post");
+      }
+      setLoading(false);
     }
+    loadPost();
+  }, [id]);
 
-    if (loading) return <p>Loading...</p>;
+  async function handleSubmit(e) {
+    e.preventDefault();
+    try {
+      const res = await axios.put(`http://localhost:8000/api/posts/${id}`, 
+        { title, content },
+        { withCredentials: true }
+      );
+      const data = res.data;
+      if (res.status === 200) {
+        navigate("/");
+      } else {
+        setError(data.error);
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Failed to update post");
+    }
+  }
 
-    return (
-        <div>
-            <h1>Edit Post</h1>
-            
-            {error && <p className="error">{error}</p>}
+  if (loading) return <p>Loading...</p>;
 
-            <form onSubmit={handleSubmit}>
-                <label htmlFor="title">Title</label>
-                <input type="text" id="title" value={title} onChange={(e) => setTitle(e.target.value)} required/>
+  return (
+    <div>
+      <h1>Edit Post</h1>
 
-                <label htmlFor="content">Content</label>
-                <textarea id="content" value={content} onChange={(e) => setContent(e.target.value)} required></textarea>
+      {error && <p className="error">{error}</p>}
 
-                <button type="submit">Update Post</button>
-            </form>
+      <form onSubmit={handleSubmit}>
+        <label htmlFor="title">Title</label>
+        <input
+          type="text"
+          id="title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          required
+        />
 
-            <Link to="/">Back to Home</Link>
-        </div>
-    );
+        <label htmlFor="content">Content</label>
+        <textarea
+          id="content"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          required
+        ></textarea>
+
+        <button type="submit">Update Post</button>
+      </form>
+
+      <Link to="/">Back to Home</Link>
+    </div>
+  );
 }
 
 export default EditPost;
