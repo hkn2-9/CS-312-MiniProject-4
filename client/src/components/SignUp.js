@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
+// sign up, user, name, pass
 function SignUp() {
   const [name, setName] = useState("");
   const [userId, setUserId] = useState("");
@@ -12,12 +13,15 @@ function SignUp() {
   async function handleSubmit(event) {
     event.preventDefault();
     try {
+        // checks user ID isnt taken
     await axios.post("http://localhost:8000/api/signup", 
       { name, user_id: userId, password },
       { withCredentials: true }
     );
+    // send user to sign in after success
     navigate("/signin");
     } catch (problem) {
+        // show error reason
       setError("Failed to sign up");
     }
   }
@@ -28,6 +32,7 @@ function SignUp() {
 
       {error && <p className="error">{error}</p>}
 
+      {/* form for user to enter their name, user ID, and password */}  
       <form onSubmit={handleSubmit}>
         <label htmlFor="name">Name</label>
         <input

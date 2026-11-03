@@ -14,8 +14,11 @@ const pool = new Pool({
   port: 5432,
 });
 
+// react server calls the api and sends session cookies and requests
 app.use(cors({ origin: "http://localhost:3000", credentials: true }));
+// parse JSON request bodies
 app.use(express.json());
+// remembers user sessions until server restart
 app.use(
   session({
     secret: "your_secret_key",
@@ -24,18 +27,19 @@ app.use(
   }),
 );
 
-// sends people to sign in page if they are not logged in
+// blocks non-signed in users
 function requireLogin(req, res, next) {
   if (!req.session.user) {
     return res.status(401).json({ error: "User not logged in" });
   }
   next();
 }
-
+// page refresh doesn't log out
 app.get("/api/me", (req, res) => {
   res.json({ user: req.session.user || null });
 });
 
+// create an account. rejects id if taken, passwords aren't encrypted
 app.post("/api/signup", async (req, res) => {
   const { user_id, password, name } = req.body;
   try {
@@ -58,6 +62,7 @@ app.post("/api/signup", async (req, res) => {
   }
 });
 
+// sign in a user. returns user info on success
 app.post("/api/signin", async (req, res) => {
   const { user_id, password } = req.body;
   try {
@@ -80,11 +85,12 @@ app.post("/api/signin", async (req, res) => {
   }
 });
 
+// sign out a user
 app.post("/api/signout", (req, res) => {
   req.session.destroy(() => res.json({ success: true }));
 });
 
-//view all posts
+// view all posts
 app.get("/api/posts", async (req, res) => {
   try {
     const result = await pool.query(
@@ -97,6 +103,7 @@ app.get("/api/posts", async (req, res) => {
   }
 });
 
+// view a single post by ID
 app.get("/api/posts/:id", requireLogin, async (req, res) => {
   try {
     const result = await pool.query("SELECT * FROM blogs WHERE blog_id = $1", [
@@ -132,7 +139,7 @@ app.post("/api/posts", requireLogin, async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 });
-
+// update a post by ID
 app.put("/api/posts/:id", requireLogin, async (req, res) => {
   const { title, content } = req.body;
   try {
@@ -152,7 +159,7 @@ app.put("/api/posts/:id", requireLogin, async (req, res) => {
   }
 });
 
-//delete a post
+// delete a post
 app.delete("/api/posts/:id", requireLogin, async (req, res) => {
   try {
     const result = await pool.query(

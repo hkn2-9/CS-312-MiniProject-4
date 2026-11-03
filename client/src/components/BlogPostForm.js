@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 
+// form for new post, saves, hands to home component
 function BlogPostForm({ onPostCreated }) {
   const [form, setForm] = useState({ title: "", content: "" });
   const [error, setError] = useState(null);
@@ -9,14 +10,17 @@ function BlogPostForm({ onPostCreated }) {
 
     event.preventDefault();
     try {
+        // session cookie proves whos posting
       const respond = await axios.post("http://localhost:8000/api/posts", 
         form,
         {withCredentials: true}
       );
+      // server returns saved row
       onPostCreated(respond.data);
       setForm({ title: "", content: "" });
       setError(null);
     } catch (err) {
+        // error message
       setError(err.response?.data?.message || "Failed to create post.");
     }
   }

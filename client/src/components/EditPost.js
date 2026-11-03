@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 
+// edit page, loads post, and prefills form, saves changes
 function EditPost({ user, setUser }) {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -10,6 +11,7 @@ function EditPost({ user, setUser }) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
+  // load existing post when page opens, error when non owner
   useEffect(() => {
     async function loadPost() {
       try {
@@ -19,6 +21,7 @@ function EditPost({ user, setUser }) {
         const data = res.data;
         if (res.status === 200) {
           setTitle(data.title);
+          // column is body, form is content
           setContent(data.body);
         } else {
           setError(data.error);
@@ -32,6 +35,7 @@ function EditPost({ user, setUser }) {
     loadPost();
   }, [id]);
 
+  // saves edits, server checks for own post so changing fails again
   async function handleSubmit(e) {
     e.preventDefault();
     try {
@@ -41,6 +45,7 @@ function EditPost({ user, setUser }) {
       );
       const data = res.data;
       if (res.status === 200) {
+        // when home loads, update
         navigate("/");
       } else {
         setError(data.error);
@@ -58,6 +63,7 @@ function EditPost({ user, setUser }) {
       <h1>Edit Post</h1>
 
       {error && <p className="error">{error}</p>}
+      {/* form for editing the post */}
 
       <form onSubmit={handleSubmit}>
         <label htmlFor="title">Title</label>
